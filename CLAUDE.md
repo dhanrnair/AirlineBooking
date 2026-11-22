@@ -37,6 +37,14 @@ Reports (HTML, JUnit XML, coverage) go to `reports/` (git-ignored).
 - The From/To `<select>`s' accessible names include their option text, so `getByLabel('To')` is ambiguous; use the `airport(page, 'To')` locator in `tests/e2e/flights.spec.js`.
 - Vitest is pinned to v3 because the app is on Vite 5 (Vitest 5 needs Vite 6+).
 
+### CI
+
+`.github/workflows/ci.yml` (GitHub Actions, job `test`) runs on push to `main`, on pull requests and on manual dispatch: `npm ci`, install Chromium, `npm run db:setup`, `npm test`. Reports are uploaded as the `test-reports` artifact (always) and `playwright-artifacts` (traces/videos, failures only). About 1.5 minutes.
+
+- Needs repository secrets `DATABASE_URL` and `BETTER_AUTH_SECRET`. Secrets are write-only, so a missing one shows up as an empty `DATABASE_URL:` in the log and `db:setup` exits with "DATABASE_URL is not set". `DATABASE_URL` should be a dedicated Neon test branch: CI runs `db:setup` and books/cancels seats against it.
+- A `concurrency` group serialises runs, because they all share one database's flights and seats.
+- `gh` is installed at `~/.local/gh/bin` (not on this session's PATH; use the full path). Useful: `gh run list`, `gh run watch <id> --exit-status`, `gh run view <id> --log-failed`, `gh run rerun <id> --failed`, `gh secret set NAME` (pipe the value on stdin, don't put it on the command line).
+
 ## Architecture
 
 - `server/index.js` mounts Better Auth at `/api/auth/{*splat}` **before** the `/api` router (which applies `express.json()`); reversing this makes auth requests hang. Then Vite middleware (dev) or `dist/` + SPA fallback `/{*splat}` (prod, Express 5 syntax).
