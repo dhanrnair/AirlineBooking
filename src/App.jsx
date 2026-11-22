@@ -21,7 +21,7 @@ export default function App() {
           <Route path="*" element={<p>Page not found.</p>} />
         </Routes>
       </main>
-      <footer className="container muted small footer">Demo project: no real payments are taken and no real tickets are issued.</footer>
+      <footer className="container muted small footer">Demo project: no real payments are taken and no real tickets are issued. © Skyline Air</footer>
     </>
   );
 }
